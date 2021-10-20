@@ -6,7 +6,7 @@ def browseFiles():
     filename = filedialog.askopenfilename(initialdir="/",
                                           title="Select a File",
                                           filetypes=(("Text files",
-                                                      "*.jpg*"),
+                                                      "*.png*"),
                                                      ("all files",
                                                       "*.*")))
 
