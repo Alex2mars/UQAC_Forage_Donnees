@@ -6,12 +6,7 @@ from PIL import Image, ImageTk
 import tkinter as tk
 from PIL import Image, ImageTk
 
-root = tk.Tk()
-img = Image.open("D:\\Dossiers\\UQAC\\UQAC_Forage_Donnees\TP2 - Clustering couleurs\\img\\dolmanax.png")
-tkimage = ImageTk.PhotoImage(img)
-tk.Button(root, image=tkimage).grid()
 
-root.mainloop()
 
 
 def browseFiles():
