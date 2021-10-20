@@ -1,23 +1,37 @@
 from tkinter import *
 from tkinter import filedialog
 import tkinter as tk
+from PIL import Image, ImageTk
+
+import tkinter as tk
+from PIL import Image, ImageTk
+
+root = tk.Tk()
+img = Image.open("D:\\Dossiers\\UQAC\\UQAC_Forage_Donnees\TP2 - Clustering couleurs\\img\\dolmanax.png")
+tkimage = ImageTk.PhotoImage(img)
+tk.Button(root, image=tkimage).grid()
+
+root.mainloop()
+
 
 def browseFiles():
     filename = filedialog.askopenfilename(initialdir="/",
                                           title="Select a File",
-                                          filetypes=(("Text files",
+                                          filetypes=(("Image files",
                                                       "*.png*"),
                                                      ("all files",
                                                       "*.*")))
 
     # Change label contents
     label_file_explorer.configure(text="File Opened: " + filename)
-    img = PhotoImage(file=filename)
-    b2 = tk.Button(ws, image=img)  # using Button
+    img = Image.open(filename)
+    tkimg = ImageTk.PhotoImage(img)
+    b2 = tk.Button(ws, image=tkimg)  # using Button
+    b2.image = tkimg
     b2.grid(row=3, column=1)
 
 ws = Tk()
-ws.title('PythonGuides')
+ws.title('Clustering de couleurs')
 
 label_file_explorer = Label(ws,
                             text = "File Explorer using Tkinter",
