@@ -1,15 +1,18 @@
 from tkinter import *
 from tkinter import filedialog
-import tkinter as tk
+import numpy as np
 from PIL import Image, ImageTk
 
-import tkinter as tk
-from PIL import Image, ImageTk
+image = None
 
 
+def apply_transformations():
+    img_array = np.array(image)
+    print(img_array)
 
 
 def browseFiles():
+    global image
     filename = filedialog.askopenfilename(initialdir="/",
                                           title="Select a File",
                                           filetypes=(("Image files",
@@ -19,19 +22,23 @@ def browseFiles():
 
     # Change label contents
     label_file_explorer.configure(text="File Opened: " + filename)
-    img = Image.open(filename)
-    tkimg = ImageTk.PhotoImage(img)
-    b2 = tk.Button(ws, image=tkimg)  # using Button
-    b2.image = tkimg
+    image = Image.open(filename)
+    image = image.convert("RGB")
+    tkImg = ImageTk.PhotoImage(image)
+    b2 = Button(ws, image=tkImg)  # using Button
+    b2.image = tkImg
     b2.grid(row=3, column=1)
+
+    apply_transformations()
+
 
 ws = Tk()
 ws.title('Clustering de couleurs')
 
 label_file_explorer = Label(ws,
-                            text = "File Explorer using Tkinter",
-                            width = 100, height = 4,
-                            fg = "blue")
+                            text="File Explorer using Tkinter",
+                            width=100, height=4,
+                            fg="blue")
 button_explore = Button(ws,
                         text="Browse Files",
                         command=browseFiles)
@@ -44,6 +51,5 @@ label_file_explorer.grid(column=1, row=1)
 button_explore.grid(column=1, row=2)
 
 button_exit.grid(column=1, row=3)
-
 
 ws.mainloop()
