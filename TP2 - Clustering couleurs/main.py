@@ -25,8 +25,7 @@ def k_means(np_array: np.ndarray, k=32, max_iter=10000):
         cluster_means.append((rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255)))
 
     for i in range(max_iter):
-
-        #Clear cluster sets
+        # Clear cluster sets
         cluster_sets.clear()
         for _ in range(k):
             cluster_sets.append([])
