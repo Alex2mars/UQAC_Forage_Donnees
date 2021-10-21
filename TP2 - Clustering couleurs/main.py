@@ -10,6 +10,18 @@ def apply_transformations():
     img_array = np.array(image)
     print(img_array)
 
+def FindNeighbours(Point, Points, distanceFunction, eps):
+    tempNeighbours = []
+    for y in range(len(Points)):
+        for x in range(len(Points[0])):
+            if distanceFunction == "e":
+                if EuclideanDistance(Point, Points[y][x]) <= eps:
+                    tempNeighbours.append(Points[y][x])
+            if distanceFunction == "m":
+                if MaximumDistance(Point, Points[y][x]) <= eps:
+                    tempNeighbours.append(Points[y][x])
+    return tempNeighbours
+
 
 def browseFiles():
     global image
