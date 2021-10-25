@@ -15,6 +15,19 @@ def euclidian_distance(p1, p2):
         distance += (p1[i] - p2[i]) ** 2
     return sqrt(distance)
 
+def mean_value(array):
+    elem_dim = len(array[0])
+    size = len(array)
+    mean = []
+    for index in range(elem_dim):
+        mean[index] = 0
+    for elem in array:
+        for index in range(elem_dim):
+            mean[index] += elem[index]
+    for index in range(elem_dim):
+        mean[index] = mean[index]/size
+    return mean
+
 
 def k_means(np_array: np.ndarray, k=32, max_iter=10000):
     cluster_means = []
@@ -30,14 +43,14 @@ def k_means(np_array: np.ndarray, k=32, max_iter=10000):
         for _ in range(k):
             cluster_sets.append([])
 
-        # Start iteration
+        # Choose cluster for every value of the array
         for x in range(np_array.shape[0]):
             for y in range(np_array.shape[1]):
                 value = np_array[x][y]
 
                 # Choose cluster for value (R,G,B)
                 closest_cluster_index = -1
-                min_distance = 66000 # sqrt(255^2+255^2+255^2)
+                min_distance = 442  # sqrt(255^2+255^2+255^2) max distance possible for rgb
                 for cluster_index in range(len(cluster_means)):
                     cluster_mean = cluster_means[cluster_index]
                     dist = euclidian_distance(value, cluster_mean)
@@ -46,6 +59,12 @@ def k_means(np_array: np.ndarray, k=32, max_iter=10000):
                         min_distance = dist
 
                 cluster_sets[closest_cluster_index].append(value)
+
+        # Compute new means
+        for cluster_mean_index in range(len(cluster_means)):
+            # Compute centroid
+            cluster_means[cluster_mean_index] = mean_value(cluster_sets[cluster_mean_index])
+    return cluster_means, cluster_sets
 
 
 
