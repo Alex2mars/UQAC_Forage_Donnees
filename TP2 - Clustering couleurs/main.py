@@ -38,6 +38,19 @@ def db_scan():
 
     return 0
 
+def mean_value(array):
+    elem_dim = len(array[0])
+    size = len(array)
+    mean = []
+    for index in range(elem_dim):
+        mean[index] = 0
+    for elem in array:
+        for index in range(elem_dim):
+            mean[index] += elem[index]
+    for index in range(elem_dim):
+        mean[index] = mean[index]/size
+    return mean
+
 
 def k_means(np_array: np.ndarray, k=32, max_iter=10000):
     cluster_means = []
@@ -60,7 +73,7 @@ def k_means(np_array: np.ndarray, k=32, max_iter=10000):
 
                 # Choose cluster for value (R,G,B)
                 closest_cluster_index = -1
-                min_distance = 66000 # sqrt(255^2+255^2+255^2)
+                min_distance = 442  # sqrt(255^2+255^2+255^2) max distance possible for rgb
                 for cluster_index in range(len(cluster_means)):
                     cluster_mean = cluster_means[cluster_index]
                     dist = euclidian_distance(value, cluster_mean)
@@ -69,6 +82,13 @@ def k_means(np_array: np.ndarray, k=32, max_iter=10000):
                         min_distance = dist
 
                 cluster_sets[closest_cluster_index].append(value)
+
+        # Compute new means
+        for cluster_mean_index in range(len(cluster_means)):
+            # Compute centroid
+            cluster_means[cluster_mean_index] = mean_value(cluster_sets[cluster_mean_index])
+    return cluster_means, cluster_sets
+
 
 
 def apply_transformations():
