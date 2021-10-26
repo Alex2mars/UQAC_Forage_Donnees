@@ -119,12 +119,14 @@ def apply_transformations():
 
 def browseFiles():
     global image
-    filename = filedialog.askopenfilename(initialdir="/",
+    filename = filedialog.askopenfilename(initialdir="./img/",
                                           title="Select a File",
                                           filetypes=(("Image files",
                                                       "*.png*"),
                                                      ("all files",
                                                       "*.*")))
+    if not filename:
+        return
     # Change label contents
     label_file_explorer.configure(text="File Opened: " + filename)
     image = Image.open(filename)
@@ -168,7 +170,7 @@ def run_search():
         return
     search_method = combobox_method.current()
     search_option = combobox_option.current()
-    iter = int(iterations[combobox_iter.current() + 1])
+    iter = int(iterations[combobox_iter.current()])
 
     np_image = np.array(image)
     print(search_method)
