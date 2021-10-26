@@ -162,44 +162,54 @@ button_exit = Button(ws,
                      command=exit)
 label_file_explorer.grid(column=1, row=1)
 
-button_explore.grid(column=1, row=2)
+button_explore.grid(column=3, row=2)
 
-button_exit.grid(column=1, row=3)
+button_exit.grid(column=3, row=3)
+
+iterations = ('5', '10','20','50')
+options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
 
 
 def run_search():
-    search_method = combobox_start.current()
-    search_option = combobox_end.current()
-    if search_method == 1:  # Kmeans
-        if search_option == 1:
+    search_method = combobox_method.current()
+    search_option = combobox_option.current()
+    iter = iterations[combobox_iter.current() + 1]
+    if search_method == 0:  # Kmeans
+        if search_option == 0:
             k_means(8)
-        if search_option == 2:
+        if search_option == 1:
             k_means(16)
-        if search_option == 3:
+        if search_option == 2:
             k_means(32)
-        if search_option >= 4:
+        if search_option >= 3:
             return 0
-    elif search_method == 2:  # DBSCAN
-        if search_option <= 3:
+    elif search_method == 1:  # DBSCAN
+        if search_option <= 2:
             return 0
-        if search_option == 4:
+        if search_option == 3:
             db_scan('e')
-        if search_option == 5:
+        if search_option == 4:
             db_scan('m')
+
 
 
 canvas1 = tk.Canvas(ws)
 canvas1.grid(row=0, column=0, columnspan=4)
-label_start = tk.Label(ws, text="Method")
-label_start.grid(row=1, column=0)
-combobox_start = ttk.Combobox(ws, state='readonly')
-combobox_start.grid(row=1, column=1)
-label_end = tk.Label(ws, text="Option")
-label_end.grid(row=1, column=2)
-combobox_end = ttk.Combobox(ws, state='readonly')
-combobox_end.grid(row=1, column=3)
-combobox_start['values'] = ['k-means','dbscan']
-combobox_end['values'] = ['k-8','k-16','k-32','db-eucli','db-manhattan']
+label_method = tk.Label(ws, text="Method")
+label_method.grid(row=1, column=0)
+combobox_method = ttk.Combobox(ws, state='readonly')
+combobox_method.grid(row=1, column=1)
+label_option = tk.Label(ws, text="Option")
+label_option.grid(row=1, column=2)
+combobox_option = ttk.Combobox(ws, state='readonly')
+combobox_option.grid(row=1, column=3)
+label_iter = tk.Label(ws, text="Iteration")
+label_iter.grid(row=2, column=0)
+combobox_iter = ttk.Combobox(ws, state='readonly')
+combobox_iter.grid(row=2, column=1)
+combobox_method['values'] = ['k-means','dbscan']
+combobox_option['values'] = options
+combobox_iter['values'] = iterations
 button_run = tk.Button(ws, text='Calculate', command=run_search)
 button_run.grid(row=5, column=0)
 
