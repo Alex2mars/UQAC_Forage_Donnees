@@ -1,6 +1,7 @@
 import datetime
 import uuid
 import math
+from collections import defaultdict
 from tkinter import *
 from tkinter import filedialog
 import numpy as np
@@ -28,17 +29,64 @@ def manhattan_distance(p1, p2):
     return math.sqrt(distance)
 
 
-def Neighbours(p1, p2, eps):
-    temp = []
-    for y in range(len(p2)):
-        for x in range(len(p2[0])):
-            if euclidian_distance(p1, p2[y][x]) <= eps:
-                temp.append(p2[y][x])
-    return temp
+def get_neighbour_indexes(db: np.ndarray, point_index, dist_fn, distance):
+    neighbours = []
+    point = db[point_index]
+    rgb_index = -1
+    for rgb in db:
+        rgb_index += 1
+        if rgb_index == point_index:
+            continue
+        if dist_fn(rgb, point) <= distance:
+            neighbours.append(rgb_index)
+    return neighbours
 
 
-def db_scan():
-    return 0
+def db_scan(np_array: np.ndarray, min_pts=4, max_distance=6, distance_function=manhattan_distance):
+    flat_array = np_array.flatten().reshape((-1, 3))  # [[r, g, b], [...], [...], ...]
+
+    labels = dict()  # (index_in_array: label, ...)
+
+    cluster_n = 0
+
+    rgb_index = -1
+    for rgb in flat_array:
+        rgb_index += 1
+        if rgb_index in labels:  # Already labeled/visited
+            continue
+        neighbour_indexes = get_neighbour_indexes(flat_array, rgb_index, distance_function, max_distance)
+        if len(neighbour_indexes) < min_pts:
+            labels[rgb_index] = "noise"
+            continue
+        cluster_n += 1
+        labels[rgb_index] = cluster_n
+
+        expand_indexes = neighbour_indexes.copy()
+        for ex_ind in expand_indexes:
+            if ex_ind in labels and labels[ex_ind] == "noise":
+                labels[ex_ind] = cluster_n
+            if ex_ind in labels:
+                continue
+            labels[ex_ind] = cluster_n
+            expand_neighbour_indexes = get_neighbour_indexes(flat_array, ex_ind, distance_function, max_distance)
+            if len(expand_neighbour_indexes) >= min_pts:
+                expand_indexes.extend(expand_indexes)
+
+    clusters = defaultdict(list)
+    for key, value in labels.items():
+        clusters[value].append(key)
+    cluster_means = defaultdict(tuple)
+
+    for cluster, indexes in clusters.items():
+        cluster_means[cluster] = mean_value(list(map(lambda ind: flat_array[ind], indexes)))
+
+    res_flat_array = []
+    for index in range(len(flat_array)):
+        res_flat_array.append(cluster_means[labels[index]])
+    res_flat_array = np.array(res_flat_array)
+
+    return labels, res_flat_array.reshape((-1, 2, 3))
+
 
 
 def mean_value(array):
@@ -76,7 +124,7 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
             for ind_x in range(len(mean1)):
                 val_1 = mean1[ind_x]
                 val_2 = mean2[ind_x]
-                possible_values = [val_1+v for v in range(-interval, interval+1)]
+                possible_values = [val_1 + v for v in range(-interval, interval + 1)]
                 if val_2 not in possible_values:
                     return False
         return True
@@ -111,7 +159,8 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
             if len(cluster_sets[cluster_mean_index]) > 0:
                 cluster_means[cluster_mean_index] = np.floor(mean_value(cluster_sets[cluster_mean_index]))
             else:
-                cluster_means[cluster_mean_index] = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255))  # if no value in cluster, we choose to try a new random point
+                cluster_means[cluster_mean_index] = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0,
+                                                                                                           255))  # if no value in cluster, we choose to try a new random point
         if check_means_equal_interval(old_means, cluster_means, interval=2):
             print("L'algorithme a trouvé des clusters stables avant max_iter !")
             break
@@ -122,16 +171,6 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
             np_means[x][y] = cluster_means[get_closest_cluster_mean_index(val, cluster_means)]
 
     return cluster_means, np_means
-
-
-def apply_transformations():
-    global image
-    k = 16
-    img_array = np.array(image)
-    k_means_res = k_means(img_array, k=k)
-    k_means_img = Image.fromarray(k_means_res[1])
-    print(k_means_res[0])
-    k_means_img.save("img/k_means_" + str(k) + ".png")
 
 
 def browseFiles():
@@ -172,8 +211,8 @@ button_explore.grid(column=3, row=3)
 
 button_exit.grid(column=2, row=4)
 
-iterations = ('5', '10','20','50',"=> Clusters stables")
-options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
+iterations = ('5', '10', '20', '50', "=> Clusters stables")
+options = ('k-8', 'k-16', 'k-32', 'db-eucli', 'db-manhattan')
 
 
 def get_date_str():
@@ -218,12 +257,18 @@ def run_search():
     elif search_method == 1:  # DBSCAN
         if search_option <= 2:
             return 0
+        res = None
         if search_option == 3:
-            db_scan('e')
+            res = db_scan(np_image, min_pts=5, max_distance=10, distance_function=euclidian_distance)
         if search_option == 4:
-            db_scan('m')
-
-
+            res = db_scan(np_image, min_pts=5, max_distance=10, distance_function=manhattan_distance)
+        dbscan_img = Image.fromarray(res[1])
+        print("Clusters : ", res[0])
+        dbscan_img.save("output/dbscan_" + "euc" if search_option == 3 else "man" + "_" + get_date_str() + ".png")
+        resImg = ImageTk.PhotoImage(dbscan_img)
+        b3 = Button(ws, image=resImg)
+        b3.image = resImg
+        b3.grid(row=0, column=1)
 
 
 canvas1 = tk.Canvas(ws)
@@ -240,12 +285,10 @@ label_iter = tk.Label(ws, text="Iteration")
 label_iter.grid(row=3, column=0)
 combobox_iter = ttk.Combobox(ws, state='readonly')
 combobox_iter.grid(row=3, column=1)
-combobox_method['values'] = ['k-means','dbscan']
+combobox_method['values'] = ['k-means', 'dbscan']
 combobox_option['values'] = options
 combobox_iter['values'] = iterations
 button_run = tk.Button(ws, text='Calculate', command=run_search)
 button_run.grid(row=4, column=1)
-
-
 
 ws.mainloop()
