@@ -164,9 +164,9 @@ def run_search():
     global image
     if image is None:
         print("Pas d'image sélectionnée !")
-    search_method = combobox_start.current()
-    search_option = combobox_end.current()
-    iter = iterations[combobox_iter.current() + 1]
+    search_method = combobox_method.current()
+    search_option = combobox_option.current()
+    iter = int(iterations[combobox_iter.current() + 1])
 
     np_image = np.array(image)
     print(search_method)
@@ -198,16 +198,6 @@ def run_search():
 
 canvas1 = tk.Canvas(ws)
 canvas1.grid(row=0, column=0, columnspan=4)
-label_start = tk.Label(ws, text="Method")
-label_start.grid(row=1, column=0)
-combobox_start = ttk.Combobox(ws, state='readonly')
-combobox_start.grid(row=1, column=1)
-label_end = tk.Label(ws, text="Option")
-label_end.grid(row=1, column=2)
-combobox_end = ttk.Combobox(ws, state='readonly')
-combobox_end.grid(row=1, column=3)
-combobox_start['values'] = ['k-means', 'dbscan']
-combobox_end['values'] = ['k-8', 'k-16', 'k-32', 'db-eucli', 'db-manhattan']
 label_method = tk.Label(ws, text="Method")
 label_method.grid(row=1, column=0)
 combobox_method = ttk.Combobox(ws, state='readonly')
