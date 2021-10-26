@@ -99,8 +99,6 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
                 cluster_means[cluster_mean_index] = np.floor(mean_value(cluster_sets[cluster_mean_index]))
             else:
                 cluster_means[cluster_mean_index] = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255))  # if no value in cluster, we choose to try a new random point
-        print(cluster_means)
-        print(old_means)
         if (np.array(old_means) == np.array(cluster_means)).all():
             print("L'algorithme a trouvé des clusters stables avant max_iter !")
             break
@@ -134,22 +132,21 @@ def browseFiles():
     if not filename:
         return
     # Change label contents
-    label_file_explorer.configure(text="File Opened: " + filename)
     image = Image.open(filename)
     image = image.convert("RGB")
     tkImg = ImageTk.PhotoImage(image)
     b2 = Button(ws, image=tkImg)  # using Button
     b2.image = tkImg
-    b2.grid(row=3, column=1)
+    b2.grid(row=0, column=0)
 
 
 ws = Tk()
 ws.title('Clustering de couleurs')
+label_input = Label(ws, text="Input")
+label_output = Label(ws, text="Output")
+label_input.grid(column=0, row=1)
+label_output.grid(column=1, row=1)
 
-label_file_explorer = Label(ws,
-                            text="File Explorer using Tkinter",
-                            width=100, height=4,
-                            fg="blue")
 button_explore = Button(ws,
                         text="Browse Files",
                         command=browseFiles)
@@ -157,11 +154,10 @@ button_explore = Button(ws,
 button_exit = Button(ws,
                      text="Exit",
                      command=exit)
-label_file_explorer.grid(column=1, row=1)
 
-button_explore.grid(column=3, row=2)
+button_explore.grid(column=3, row=3)
 
-button_exit.grid(column=3, row=3)
+button_exit.grid(column=2, row=4)
 
 iterations = ('5', '10','20','50',"=> Clusters stables")
 options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
@@ -202,6 +198,10 @@ def run_search():
         k_means_img = Image.fromarray(res[1])
         print("Moyennes calculées : ", res[0])
         k_means_img.save("output/k_means_" + str(k) + "_" + get_date_str() + ".png")
+        resImg = ImageTk.PhotoImage(k_means_img)
+        b3 = Button(ws, image=resImg)
+        b3.image = resImg
+        b3.grid(row=0, column=1)
     elif search_method == 1:  # DBSCAN
         if search_option <= 2:
             return 0
@@ -212,24 +212,27 @@ def run_search():
 
 
 
+
 canvas1 = tk.Canvas(ws)
 canvas1.grid(row=0, column=0, columnspan=4)
 label_method = tk.Label(ws, text="Method")
-label_method.grid(row=1, column=0)
+label_method.grid(row=2, column=0)
 combobox_method = ttk.Combobox(ws, state='readonly')
-combobox_method.grid(row=1, column=1)
+combobox_method.grid(row=2, column=1)
 label_option = tk.Label(ws, text="Option")
-label_option.grid(row=1, column=2)
+label_option.grid(row=2, column=2)
 combobox_option = ttk.Combobox(ws, state='readonly')
-combobox_option.grid(row=1, column=3)
+combobox_option.grid(row=2, column=3)
 label_iter = tk.Label(ws, text="Iteration")
-label_iter.grid(row=2, column=0)
+label_iter.grid(row=3, column=0)
 combobox_iter = ttk.Combobox(ws, state='readonly')
-combobox_iter.grid(row=2, column=1)
+combobox_iter.grid(row=3, column=1)
 combobox_method['values'] = ['k-means','dbscan']
 combobox_option['values'] = options
 combobox_iter['values'] = iterations
 button_run = tk.Button(ws, text='Calculate', command=run_search)
-button_run.grid(row=5, column=0)
+button_run.grid(row=4, column=1)
+
+
 
 ws.mainloop()
