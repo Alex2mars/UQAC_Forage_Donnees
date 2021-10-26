@@ -1,5 +1,6 @@
+import datetime
 import uuid
-from math import sqrt
+import math
 from tkinter import *
 from tkinter import filedialog
 import numpy as np
@@ -16,7 +17,7 @@ def euclidian_distance(p1, p2):
     distance = 0
     for i in range(size):
         distance += (p1[i] - p2[i]) ** 2
-    return sqrt(distance)
+    return math.sqrt(distance)
 
 
 def manhattan_distance(p1, p2):
@@ -24,7 +25,7 @@ def manhattan_distance(p1, p2):
     distance = 0
     for i in range(size):
         distance += abs(p1[i] - p2[i])
-    return sqrt(distance)
+    return math.sqrt(distance)
 
 
 def Neighbours(p1, p2, eps):
@@ -56,6 +57,7 @@ def mean_value(array):
 
 def k_means(np_array: np.ndarray, k=16, max_iter=10):
     print("Début k-means")
+
     def get_closest_cluster_mean_index(v, cl_means):
         cl_index = -1
         min_distance = 442  # sqrt(255^2+255^2+255^2) max distance possible for rgb
@@ -66,6 +68,18 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
                 cl_index = cluster_index
                 min_distance = dist
         return cl_index
+
+    def check_means_equal_interval(means1, means2, interval=2):
+        for ind in range(len(means1)):
+            mean1 = means1[ind]
+            mean2 = means2[ind]
+            for ind_x in range(len(mean1)):
+                val_1 = mean1[ind_x]
+                val_2 = mean2[ind_x]
+                possible_values = [val_1+v for v in range(-interval, interval+1)]
+                if val_2 not in possible_values:
+                    return False
+        return True
 
     cluster_means = []
     cluster_sets = []
@@ -92,13 +106,16 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
                 cluster_sets[closest_cluster_index].append(value)
 
         # Compute new means
+        old_means = cluster_means.copy()
         for cluster_mean_index in range(len(cluster_means)):
             # Compute centroid
             if len(cluster_sets[cluster_mean_index]) > 0:
-                cluster_means[cluster_mean_index] = mean_value(cluster_sets[cluster_mean_index])
+                cluster_means[cluster_mean_index] = np.floor(mean_value(cluster_sets[cluster_mean_index]))
             else:
                 cluster_means[cluster_mean_index] = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255))  # if no value in cluster, we choose to try a new random point
-
+        if check_means_equal_interval(old_means, cluster_means, interval=3):
+            print("L'algorithme a trouvé des clusters stables avant max_iter !")
+            break
     np_means = np_array.copy()
     for x in range(np_means.shape[0]):
         for y in range(np_means.shape[1]):
@@ -156,9 +173,12 @@ button_explore.grid(column=3, row=3)
 
 button_exit.grid(column=2, row=4)
 
-iterations = ('5', '10','20','50')
+iterations = ('5', '10','20','50',"=> Clusters stables")
 options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
 
+
+def get_date_str():
+    return datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
 
 def run_search():
@@ -168,7 +188,11 @@ def run_search():
         return
     search_method = combobox_method.current()
     search_option = combobox_option.current()
-    iter = int(iterations[combobox_iter.current()])
+    iter_str = iterations[combobox_iter.current()]
+    if iter_str == "=> Clusters stables":
+        iters = 10000000
+    else:
+        iters = int(iter_str)
 
     np_image = np.array(image)
     print(search_method)
@@ -184,10 +208,10 @@ def run_search():
         if search_option >= 3:
             print("Mauvais search_option ! 1 <= x <= 4")
             return 0
-        res = k_means(np_image, k=k, max_iter=iter)
+        res = k_means(np_image, k=k, max_iter=iters)
         k_means_img = Image.fromarray(res[1])
         print("Moyennes calculées : ", res[0])
-        k_means_img.save("output/k_means_" + str(k) + "_" + str(uuid.uuid4()) + ".png")
+        k_means_img.save("output/k_means_" + str(k) + "_" + get_date_str() + ".png")
         resImg = ImageTk.PhotoImage(k_means_img)
         b3 = Button(ws, image=resImg)
         b3.image = resImg
