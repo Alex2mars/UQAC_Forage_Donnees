@@ -168,7 +168,7 @@ def run_search():
         return
     search_method = combobox_method.current()
     search_option = combobox_option.current()
-    iter = int(iterations[combobox_iter.current() + 1])
+    iter = int(iterations[combobox_iter.current()])
 
     np_image = np.array(image)
     print(search_method)
