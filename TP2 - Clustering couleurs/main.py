@@ -9,7 +9,7 @@ import random as rnd
 from PIL import Image, ImageTk
 from tkinter import ttk
 import tkinter as tk
-
+from tkinter.ttk import *
 image = None
 
 
@@ -138,6 +138,7 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
 
     for i in range(max_iter):
         print("Iteration : ", i)
+        bar(max_iter)
         # Clear cluster sets
         cluster_sets.clear()
         for _ in range(k):
@@ -269,6 +270,32 @@ def run_search():
         b3 = Button(ws, image=resImg)
         b3.image = resImg
         b3.grid(row=0, column=1)
+
+
+progress = Progressbar(ws, orient=HORIZONTAL,
+                       length=100, mode='determinate')
+
+
+# Function responsible for the updation
+# of the progress bar value
+progress_Label = tk.Label(ws, text="Progress Bar")
+progress_Label.grid(row=5, column=1)
+
+
+def bar(iterateNum):
+    if iterateNum >= 10000:
+        print("ici")
+        progress_Label.config(text="Recherche en cours")
+    else:
+        progress['value'] += 100/iterateNum
+        progress_Label['text'] = progress['value'], '%'
+        ws.update_idletasks()
+
+
+progress.grid(row=5, column=2)
+
+# This button will initialize
+# the progress bar
 
 
 canvas1 = tk.Canvas(ws)
