@@ -119,13 +119,14 @@ def apply_transformations():
 
 def browseFiles():
     global image
-    filename = filedialog.askopenfilename(initialdir="/",
+    filename = filedialog.askopenfilename(initialdir="./img/",
                                           title="Select a File",
                                           filetypes=(("Image files",
                                                       "*.png*"),
                                                      ("all files",
                                                       "*.*")))
-    filename = "D:\\Dossiers\\UQAC\\UQAC_Forage_Donnees\\TP2 - Clustering couleurs\\img\\dolmanax.png"
+    if not filename:
+        return
     # Change label contents
     label_file_explorer.configure(text="File Opened: " + filename)
     image = Image.open(filename)
