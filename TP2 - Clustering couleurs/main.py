@@ -231,13 +231,21 @@ progress = Progressbar(ws, orient=HORIZONTAL,
 
 # Function responsible for the updation
 # of the progress bar value
+progress_Label = tk.Label(ws, text="Progress Bar")
+progress_Label.grid(row=5, column=1)
+
+
 def bar(iterateNum):
-    import time
-    progress['value'] += 100/iterateNum
-    ws.update_idletasks()
+    if iterateNum >= 10000:
+        print("ici")
+        progress_Label.config(text="Recherche en cours")
+    else:
+        progress['value'] += 100/iterateNum
+        progress_Label['text'] = progress['value'], '%'
+        ws.update_idletasks()
 
 
-progress.grid(row=5, column=5)
+progress.grid(row=5, column=2)
 
 # This button will initialize
 # the progress bar
