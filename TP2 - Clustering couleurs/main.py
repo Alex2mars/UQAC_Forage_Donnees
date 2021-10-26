@@ -57,6 +57,7 @@ def mean_value(array):
 
 def k_means(np_array: np.ndarray, k=16, max_iter=10):
     print("Début k-means")
+
     def get_closest_cluster_mean_index(v, cl_means):
         cl_index = -1
         min_distance = 442  # sqrt(255^2+255^2+255^2) max distance possible for rgb
@@ -67,6 +68,18 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
                 cl_index = cluster_index
                 min_distance = dist
         return cl_index
+
+    def check_means_equal_interval(means1, means2, interval=2):
+        for ind in range(len(means1)):
+            mean1 = means1[ind]
+            mean2 = means2[ind]
+            for ind_x in range(len(mean1)):
+                val_1 = mean1[ind_x]
+                val_2 = mean2[ind_x]
+                possible_values = [val_1+v for v in range(-interval, interval+1)]
+                if val_2 not in possible_values:
+                    return False
+        return True
 
     cluster_means = []
     cluster_sets = []
@@ -99,7 +112,7 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
                 cluster_means[cluster_mean_index] = np.floor(mean_value(cluster_sets[cluster_mean_index]))
             else:
                 cluster_means[cluster_mean_index] = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255))  # if no value in cluster, we choose to try a new random point
-        if (np.array(old_means) == np.array(cluster_means)).all():
+        if check_means_equal_interval(old_means, cluster_means, interval=3):
             print("L'algorithme a trouvé des clusters stables avant max_iter !")
             break
     np_means = np_array.copy()
@@ -164,7 +177,7 @@ options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
 
 
 def get_date_str():
-    return datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+    return datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
 
 def run_search():
