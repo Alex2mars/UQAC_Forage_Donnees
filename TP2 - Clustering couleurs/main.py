@@ -163,7 +163,7 @@ button_explore.grid(column=3, row=2)
 
 button_exit.grid(column=3, row=3)
 
-iterations = ('5', '10','20','50',"Tant qu'il n'y a pas tous les clusters stables")
+iterations = ('5', '10','20','50',"=> Clusters stables")
 options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
 
 
@@ -179,7 +179,7 @@ def run_search():
     search_method = combobox_method.current()
     search_option = combobox_option.current()
     iter_str = iterations[combobox_iter.current()]
-    if iter_str == "Tant qu'il n'y a pas tous les clusters stables":
+    if iter_str == "=> Clusters stables":
         iters = 10000000
     else:
         iters = int(iter_str)
