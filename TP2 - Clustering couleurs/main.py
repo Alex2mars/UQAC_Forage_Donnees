@@ -1,5 +1,6 @@
+import datetime
 import uuid
-from math import sqrt
+import math
 from tkinter import *
 from tkinter import filedialog
 import numpy as np
@@ -16,7 +17,7 @@ def euclidian_distance(p1, p2):
     distance = 0
     for i in range(size):
         distance += (p1[i] - p2[i]) ** 2
-    return sqrt(distance)
+    return math.sqrt(distance)
 
 
 def manhattan_distance(p1, p2):
@@ -24,7 +25,7 @@ def manhattan_distance(p1, p2):
     distance = 0
     for i in range(size):
         distance += abs(p1[i] - p2[i])
-    return sqrt(distance)
+    return math.sqrt(distance)
 
 
 def Neighbours(p1, p2, eps):
@@ -91,13 +92,18 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
                 cluster_sets[closest_cluster_index].append(value)
 
         # Compute new means
+        old_means = cluster_means.copy()
         for cluster_mean_index in range(len(cluster_means)):
             # Compute centroid
             if len(cluster_sets[cluster_mean_index]) > 0:
-                cluster_means[cluster_mean_index] = mean_value(cluster_sets[cluster_mean_index])
+                cluster_means[cluster_mean_index] = np.floor(mean_value(cluster_sets[cluster_mean_index]))
             else:
                 cluster_means[cluster_mean_index] = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255))  # if no value in cluster, we choose to try a new random point
-
+        print(cluster_means)
+        print(old_means)
+        if (np.array(old_means) == np.array(cluster_means)).all():
+            print("L'algorithme a trouvé des clusters stables avant max_iter !")
+            break
     np_means = np_array.copy()
     for x in range(np_means.shape[0]):
         for y in range(np_means.shape[1]):
@@ -157,8 +163,12 @@ button_explore.grid(column=3, row=2)
 
 button_exit.grid(column=3, row=3)
 
-iterations = ('5', '10','20','50')
+iterations = ('5', '10','20','50',"Tant qu'il n'y a pas tous les clusters stables")
 options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
+
+
+def get_date_str():
+    return datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
 
 
 def run_search():
@@ -168,7 +178,11 @@ def run_search():
         return
     search_method = combobox_method.current()
     search_option = combobox_option.current()
-    iter = int(iterations[combobox_iter.current()])
+    iter_str = iterations[combobox_iter.current()]
+    if iter_str == "Tant qu'il n'y a pas tous les clusters stables":
+        iters = 10000000
+    else:
+        iters = int(iter_str)
 
     np_image = np.array(image)
     print(search_method)
@@ -184,10 +198,10 @@ def run_search():
         if search_option >= 3:
             print("Mauvais search_option ! 1 <= x <= 4")
             return 0
-        res = k_means(np_image, k=k, max_iter=iter)
+        res = k_means(np_image, k=k, max_iter=iters)
         k_means_img = Image.fromarray(res[1])
         print("Moyennes calculées : ", res[0])
-        k_means_img.save("output/k_means_" + str(k) + "_" + str(uuid.uuid4()) + ".png")
+        k_means_img.save("output/k_means_" + str(k) + "_" + get_date_str() + ".png")
     elif search_method == 1:  # DBSCAN
         if search_option <= 2:
             return 0
