@@ -164,6 +164,7 @@ def run_search():
     global image
     if image is None:
         print("Pas d'image sélectionnée !")
+        return
     search_method = combobox_method.current()
     search_option = combobox_option.current()
     iter = int(iterations[combobox_iter.current() + 1])
