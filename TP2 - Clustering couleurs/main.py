@@ -182,7 +182,7 @@ def run_search():
         if search_option >= 3:
             print("Mauvais search_option ! 1 <= x <= 4")
             return 0
-        res = k_means(np_image, k=k, max_iter=10)
+        res = k_means(np_image, k=k, max_iter=iter)
         k_means_img = Image.fromarray(res[1])
         print("Moyennes calculées : ", res[0])
         k_means_img.save("output/k_means_" + str(k) + "_" + str(uuid.uuid4()) + ".png")
