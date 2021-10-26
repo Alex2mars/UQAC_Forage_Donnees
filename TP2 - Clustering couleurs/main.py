@@ -112,7 +112,7 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
                 cluster_means[cluster_mean_index] = np.floor(mean_value(cluster_sets[cluster_mean_index]))
             else:
                 cluster_means[cluster_mean_index] = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255))  # if no value in cluster, we choose to try a new random point
-        if check_means_equal_interval(old_means, cluster_means, interval=3):
+        if check_means_equal_interval(old_means, cluster_means, interval=2):
             print("L'algorithme a trouvé des clusters stables avant max_iter !")
             break
     np_means = np_array.copy()
