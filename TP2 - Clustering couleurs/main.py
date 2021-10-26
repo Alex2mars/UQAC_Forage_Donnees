@@ -125,7 +125,6 @@ def browseFiles():
                                                       "*.png*"),
                                                      ("all files",
                                                       "*.*")))
-    filename = "D:\\Dossiers\\UQAC\\UQAC_Forage_Donnees\\TP2 - Clustering couleurs\\img\\dolmanax.png"
     # Change label contents
     label_file_explorer.configure(text="File Opened: " + filename)
     image = Image.open(filename)
@@ -158,6 +157,8 @@ button_exit.grid(column=3, row=3)
 
 iterations = ('5', '10','20','50')
 options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
+b3 = Button(ws, image=None)  # using Button
+b3.grid(row=6, column=1)
 
 
 def run_search():
@@ -187,6 +188,8 @@ def run_search():
         k_means_img = Image.fromarray(res[1])
         print("Moyennes calculées : ", res[0])
         k_means_img.save("output/k_means_" + str(k) + "_" + str(uuid.uuid4()) + ".png")
+        resImg = ImageTk.PhotoImage(k_means_img)
+        b3.image = resImg
     elif search_method == 1:  # DBSCAN
         if search_option <= 2:
             return 0
@@ -217,5 +220,7 @@ combobox_option['values'] = options
 combobox_iter['values'] = iterations
 button_run = tk.Button(ws, text='Calculate', command=run_search)
 button_run.grid(row=5, column=0)
+
+
 
 ws.mainloop()
