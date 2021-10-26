@@ -193,6 +193,7 @@ def run_search():
 
 
 
+
 canvas1 = tk.Canvas(ws)
 canvas1.grid(row=0, column=0, columnspan=4)
 label_method = tk.Label(ws, text="Method")
