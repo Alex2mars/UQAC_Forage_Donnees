@@ -1,3 +1,4 @@
+import uuid
 from math import sqrt
 from tkinter import *
 from tkinter import filedialog
@@ -36,8 +37,8 @@ def Neighbours(p1, p2, eps):
 
 
 def db_scan():
-
     return 0
+
 
 def mean_value(array):
     elem_dim = len(array[0])
@@ -54,6 +55,18 @@ def mean_value(array):
 
 
 def k_means(np_array: np.ndarray, k=16, max_iter=10):
+    print("Début k-means")
+    def get_closest_cluster_mean_index(v, cl_means):
+        cl_index = -1
+        min_distance = 442  # sqrt(255^2+255^2+255^2) max distance possible for rgb
+        for cluster_index in range(len(cl_means)):
+            cluster_mean = cl_means[cluster_index]
+            dist = manhattan_distance(v, cluster_mean)
+            if dist <= min_distance:
+                cl_index = cluster_index
+                min_distance = dist
+        return cl_index
+
     cluster_means = []
     cluster_sets = []
 
@@ -74,15 +87,7 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
                 value = np_array[x][y]
 
                 # Choose cluster for value (R,G,B)
-                closest_cluster_index = -1
-                min_distance = 442  # sqrt(255^2+255^2+255^2) max distance possible for rgb
-                for cluster_index in range(len(cluster_means)):
-                    cluster_mean = cluster_means[cluster_index]
-                    dist = euclidian_distance(value, cluster_mean)
-                    if dist <= min_distance:
-                        closest_cluster_index = cluster_index
-                        min_distance = dist
-
+                closest_cluster_index = get_closest_cluster_mean_index(value, cluster_means)
                 cluster_sets[closest_cluster_index].append(value)
 
         # Compute new means
@@ -93,23 +98,11 @@ def k_means(np_array: np.ndarray, k=16, max_iter=10):
             else:
                 cluster_means[cluster_mean_index] = (rnd.randint(0, 255), rnd.randint(0, 255), rnd.randint(0, 255))  # if no value in cluster, we choose to try a new random point
 
-    def mean_for_value(val):
-        closest_cluster_index = -1
-        min_distance = 442  # sqrt(255^2+255^2+255^2) max distance possible for rgb
-        for cluster_index in range(len(cluster_means)):
-            cluster_mean = cluster_means[cluster_index]
-            dist = euclidian_distance(val, cluster_mean)
-            if dist <= min_distance:
-                closest_cluster_index = cluster_index
-                min_distance = dist
-        return cluster_means[closest_cluster_index]
-
-
     np_means = np_array.copy()
     for x in range(np_means.shape[0]):
         for y in range(np_means.shape[1]):
             val = np_means[x][y]
-            np_means[x][y] = mean_for_value(val)
+            np_means[x][y] = cluster_means[get_closest_cluster_mean_index(val, cluster_means)]
 
     return cluster_means, np_means
 
@@ -142,12 +135,9 @@ def browseFiles():
     b2.image = tkImg
     b2.grid(row=3, column=1)
 
-    apply_transformations()
-
 
 ws = Tk()
 ws.title('Clustering de couleurs')
-
 
 label_file_explorer = Label(ws,
                             text="File Explorer using Tkinter",
@@ -171,18 +161,32 @@ options = ('k-8','k-16','k-32','db-eucli','db-manhattan')
 
 
 def run_search():
+    global image
+    if image is None:
+        print("Pas d'image sélectionnée !")
+        return
     search_method = combobox_method.current()
     search_option = combobox_option.current()
-    iter = iterations[combobox_iter.current() + 1]
+    iter = int(iterations[combobox_iter.current() + 1])
+
+    np_image = np.array(image)
+    print(search_method)
     if search_method == 0:  # Kmeans
+        print("KMEANS")
+        k = 8
         if search_option == 0:
-            k_means(8)
+            k = 8
         if search_option == 1:
-            k_means(16)
+            k = 16
         if search_option == 2:
-            k_means(32)
+            k = 32
         if search_option >= 3:
+            print("Mauvais search_option ! 1 <= x <= 4")
             return 0
+        res = k_means(np_image, k=k, max_iter=iter)
+        k_means_img = Image.fromarray(res[1])
+        print("Moyennes calculées : ", res[0])
+        k_means_img.save("output/k_means_" + str(k) + "_" + str(uuid.uuid4()) + ".png")
     elif search_method == 1:  # DBSCAN
         if search_option <= 2:
             return 0
